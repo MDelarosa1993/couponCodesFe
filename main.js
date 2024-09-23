@@ -270,9 +270,7 @@ function displayMerchantCoupons(coupons) {
       formattedDiscount = `${discount_value}%`;
     } else if (discount_type === 'dollar') {
       formattedDiscount = `$${discount_value}`;
-    } else {
-      formattedDiscount = `${discount_value}`; 
-    }
+    } 
 
     couponsView.innerHTML += `
       <article class="coupon" id="coupon-${id}">
