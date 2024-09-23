@@ -10,6 +10,7 @@ const merchantsNavButton = document.querySelector("#merchants-nav")
 const itemsNavButton = document.querySelector("#items-nav")
 const addNewButton = document.querySelector("#add-new-button")
 const showingText = document.querySelector("#showing-text")
+const displayOptions = document.querySelector(".display-options")
 
 //Form elements
 const merchantForm = document.querySelector("#new-merchant-form")
@@ -143,6 +144,7 @@ function showMerchantsView() {
   addRemoveActiveNav(merchantsNavButton, itemsNavButton)
   addNewButton.dataset.state = 'merchant'
   show([merchantsView, addNewButton])
+  show([displayOptions])
   hide([itemsView])
   displayMerchants(merchants)
 }
@@ -235,22 +237,55 @@ function displayMerchantItems(event) {
 function getMerchantCoupons(event) {
   let merchantId = event.target.closest("article").id.split('-')[1]
   console.log("Merchant ID:", merchantId)
-
-  fetchData(`merchants/${merchantId}`)
+  hide([displayOptions])
+  fetchData(`merchants/${merchantId}/coupons`)
   .then(couponData => {
     console.log("Coupon data from fetch:", couponData)
-    displayMerchantCoupons(couponData);
-  })
+    const coupons = couponData.data; 
+
+        displayMerchantCoupons(coupons);
+    })
 }
 
 function displayMerchantCoupons(coupons) {
-  show([couponsView])
-  hide([merchantsView, itemsView])
+  show([couponsView]);
+  hide([merchantsView, itemsView]);
+  couponsView.innerHTML = ``;
 
-  couponsView.innerHTML = `
-    <p>Coupon data will go here.</p>
-  `
+  console.log(coupons);
+
+  if (coupons.length === 0) {
+    couponsView.innerHTML = `<p>No coupons available for this merchant.</p>`;
+    return;
+  }
+
+  coupons.forEach(coupon => {
+    console.log(coupon);
+
+    const { id, attributes } = coupon; 
+    const { name, code, discount_value, discount_type, active, merchant_id } = attributes;
+
+    let formattedDiscount;
+    if (discount_type === 'percent') {
+      formattedDiscount = `${discount_value}%`;
+    } else if (discount_type === 'dollar') {
+      formattedDiscount = `$${discount_value}`;
+    } else {
+      formattedDiscount = `${discount_value}`; 
+    }
+
+    couponsView.innerHTML += `
+      <article class="coupon" id="coupon-${id}">
+        <h4>Coupon Name: ${name || 'N/A'}</h4>
+        <p>Coupon Code: ${code || 'N/A'}</p>
+        <p>Discount Value: ${formattedDiscount}</p>
+        <p>Status: ${active ? 'Active' : 'Inactive'}</p>
+        <p>Merchant ID: ${merchant_id || 'N/A'}</p>
+      </article>
+    `;
+  });
 }
+
 
 //Helper Functions
 function show(elements) {
