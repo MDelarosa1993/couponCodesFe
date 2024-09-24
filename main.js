@@ -145,7 +145,8 @@ function showMerchantsView() {
   addNewButton.dataset.state = 'merchant'
   show([merchantsView, addNewButton])
   show([displayOptions])
-  hide([itemsView])
+  console.log(itemsView)
+  hide([itemsView, couponsView])
   displayMerchants(merchants)
 }
 
